@@ -69,7 +69,7 @@ def plot_outliers(save=False):
 def plot_LDA(raw=True, lda=True):
     train, train_labels, test, test_labels = get_wine_data(labels=True)
     if raw:
-        fig, ax = plt.subplots(8,8,figsize=(50,50))
+        fig, ax = plt.subplots(11, 11, figsize=(50, 50))
         fig.suptitle('Raw Data')
         for i in range(train.shape[1]):
             for j in range(train.shape[1]):
@@ -77,13 +77,13 @@ def plot_LDA(raw=True, lda=True):
                 # plt.grid()
                 # title = "Raw data: attributes " + str(i) + " and  " + str(j)
                 # plt.title(title)
-                # plt.plot(train[train_labels==0, i], train[train_labels==0, j], 'o')
+                # plt.plot(train[train_labels == 0, i], train[train_labels == 0, j], 'o')
                 # plt.plot(train[train_labels == 1, i], train[train_labels == 1, j], 'o')
                 # plt.show()
                 title = "Attributes " + str(i) + " and  " + str(j)
                 ax[i, j].set_title(title)
-                ax[i, j].plot(train[train_labels==0, i], train[train_labels==0, j], 'o')
-                ax[i, j].plot(train[train_labels==1, i], train[train_labels==1, j], 'o')
+                ax[i, j].plot(train[train_labels == 0, i], train[train_labels == 0, j], 'o')
+                ax[i, j].plot(train[train_labels == 1, i], train[train_labels == 1, j], 'o')
         fig.show()
 
     if lda:
@@ -94,13 +94,13 @@ def plot_LDA(raw=True, lda=True):
         for i in range(train_LDA.shape[1]):
             for j in range(train_LDA.shape[1]):
                 # if i != j and i > j:
-                    # plt.figure()
-                    # plt.grid()
-                    # title = "LDA data: attributes " + str(i) + " and  " + str(j)
-                    # plt.title(title)
-                    # plt.plot(train_LDA[train_labels==0, i], train_LDA[train_labels==0, j], 'o')
-                    # plt.plot(train_LDA[train_labels==1, i], train_LDA[train_labels==1, j], 'o')
-                    # plt.show()
+                #     plt.figure()
+                #     plt.grid()
+                #     title = "LDA data: attributes " + str(i) + " and  " + str(j)
+                #     plt.title(title)
+                #     plt.plot(train_LDA[train_labels == 0, i], train_LDA[train_labels == 0, j], 'o')
+                #     plt.plot(train_LDA[train_labels == 1, i], train_LDA[train_labels == 1, j], 'o')
+                #     plt.show()
                 title = "Attributes " + str(i) + " and  " + str(j)
                 ay[i, j].set_title(title)
                 ay[i, j].plot(train_LDA[train_labels == 0, i], train_LDA[train_labels == 0, j], 'o')
@@ -111,5 +111,5 @@ if __name__ == "__main__":
     # print_label_stats()
     # plot_data_exploration()
     # plot_covariance()
-    # plot_outliers(save=True)
-    plot_LDA(False, True)
+    # plot_outliers(save=False)
+    plot_LDA(True, True)
