@@ -26,7 +26,7 @@ attributes = [
 ]
 
 
-def get_pulsar_data(path_train="Data/Train.txt", path_test="Data/Test.txt", labels=False):
+def get_wine_data(path_train="./../Data/Train.txt", path_test="./../Data/Test.txt", labels=False):
     """
     Get all pulsar data and divide into labels
     """
@@ -42,7 +42,7 @@ def kfold_test():
     """
     Test all models with kfold strategy
     """
-    train, train_labels, test, test_labels = get_pulsar_data(labels=True)
+    train, train_labels, test, test_labels = get_wine_data(labels=True)
     pipe_list: List[pip.Pipeline]
     preprocessing_pipe_list = [
         pip.Pipeline([prep.StandardScaler()]),

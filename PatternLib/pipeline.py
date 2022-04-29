@@ -2,8 +2,8 @@ from typing import List
 
 import numpy as np
 
-from blueprint import Pipe
-from blueprint import Faucet
+from PatternLib.blueprint import Pipe
+from PatternLib.blueprint import Faucet
 
 
 class Pipeline:

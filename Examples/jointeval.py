@@ -1,7 +1,7 @@
 import numpy as np
 
 import PatternLib.Classifier as cl
-from modeleval import get_pulsar_data
+from modeleval import get_wine_data
 from PatternLib.pipeline import Pipeline, Jointer
 from PatternLib.preproc import StandardScaler, Pca
 from PatternLib.probability import minDetectionCost, getConfusionMatrix2, normalizedBayesRisk
@@ -12,7 +12,7 @@ def evaluatejoint():
     """
     Hyper parameter tuning and threshold calibration for the joint model
     """
-    train, train_labels, test, test_labels = get_pulsar_data(labels=True)
+    train, train_labels, test, test_labels = get_wine_data(labels=True)
     scores_f = []
     labels_f = []
     pip = Pipeline([StandardScaler(),
@@ -52,7 +52,7 @@ def test_final():
     """
     Test the chosen model and compute the DCF on the test set, this is the final evaluation for the project
     """
-    train, train_labels, test, test_labels = get_pulsar_data(labels=True)
+    train, train_labels, test, test_labels = get_wine_data(labels=True)
     thresh1 = -2.7529140657835325
     thresh2 = -2.1681219948241015
     thresh3 = -3.081358927555268

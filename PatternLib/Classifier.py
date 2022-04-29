@@ -1,11 +1,11 @@
 
 import scipy.special
 
-from . import probability as pr
-from blueprint import *
+import PatternLib.probability as pr
+from PatternLib.blueprint import *
 import numpy as np
-from probability import GAU_ND_logpdf
-from preproc import get_cov
+from PatternLib.probability import GAU_ND_logpdf
+from PatternLib.preproc import get_cov
 from scipy.optimize import fmin_l_bfgs_b
 
 

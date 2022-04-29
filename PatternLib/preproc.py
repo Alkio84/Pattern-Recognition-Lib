@@ -1,5 +1,5 @@
-from blueprint import Pipe
-from blueprint import NoFitError
+from PatternLib.blueprint import Pipe
+from PatternLib.blueprint import NoFitError
 import numpy.linalg as ln
 from scipy.linalg import eigh
 import numpy as np

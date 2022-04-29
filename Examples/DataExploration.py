@@ -3,11 +3,11 @@ from matplotlib import pyplot as plt
 import PatternLib.pipeline as pip
 from typing import List
 import PatternLib.preproc
-from modeleval import get_pulsar_data, attributes
+from modeleval import get_wine_data, attributes
 
 
 def plot_data_exploration(save=False):
-    train, train_labels, test, test_labels = get_pulsar_data(labels=True)
+    train, train_labels, test, test_labels = get_wine_data(labels=True)
     fig, axes = plt.subplots(train.shape[1], 1, figsize=(10, 15))
     for i in range(train.shape[1]):
         axes[i].hist(train[:, i][train_labels == 0], bins=50, density=True, alpha=0.5, color="blue")
@@ -21,7 +21,7 @@ def plot_data_exploration(save=False):
 
 
 def print_stats(latek=False):
-    train, train_labels, test, test_labels = get_pulsar_data(labels=True)
+    train, train_labels, test, test_labels = get_wine_data(labels=True)
     for i, att in enumerate(attributes):
         x = train[:, i]
         if latek:
@@ -32,14 +32,14 @@ def print_stats(latek=False):
 
 
 def print_label_stats():
-    train, train_labels, test, test_labels = get_pulsar_data(labels=True)
+    train, train_labels, test, test_labels = get_wine_data(labels=True)
     for i, att in enumerate(np.unique(train_labels)):
         y = att == train_labels
         print(att, ":", sum(y), ":", sum(y) / len(y))
 
 
 def plot_covariance(save=False):
-    train, train_labels, test, test_labels = get_pulsar_data(labels=True)
+    train, train_labels, test, test_labels = get_wine_data(labels=True)
     cov = np.corrcoef(train.T)
     fig, ax = plt.subplots()
     ax.matshow(cov, cmap='bwr')
@@ -52,7 +52,7 @@ def plot_covariance(save=False):
 
 
 def plot_outliers(save=False):
-    train, train_labels, test, test_labels = get_pulsar_data(labels=True)
+    train, train_labels, test, test_labels = get_wine_data(labels=True)
     fig, ax = plt.subplots(train.shape[1], 1, figsize=(10, 15))
     train = PatternLib.preproc.StandardScaler().fit_transform(train)
     z = PatternLib.preproc.get_z_score(train)
@@ -67,7 +67,7 @@ def plot_outliers(save=False):
         fig.savefig('images/zscore.eps', format='eps')
 
 def plot_LDA(raw=True, lda=True):
-    train, train_labels, test, test_labels = get_pulsar_data(labels=True)
+    train, train_labels, test, test_labels = get_wine_data(labels=True)
     if raw:
         fig, ax = plt.subplots(8,8,figsize=(50,50))
         fig.suptitle('Raw Data')

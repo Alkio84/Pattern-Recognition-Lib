@@ -3,8 +3,8 @@ import numpy.linalg as ln
 import scipy
 import scipy.special
 
-import validation as val
-from preproc import get_cov
+import PatternLib.validation as val
+from PatternLib.preproc import get_cov
 
 
 def GAU_pdf(x: np.ndarray, mu: float, var: float) -> np.ndarray:

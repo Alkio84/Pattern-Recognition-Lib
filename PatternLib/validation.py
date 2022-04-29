@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-import probability as pr
+import PatternLib.probability as pr
 
 
 def train_test_split(x, y, size=0.8, seed=0):
