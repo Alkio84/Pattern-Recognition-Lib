@@ -49,9 +49,9 @@ def kfold_test():
     pipe_list: List[pip.Pipeline]
     preprocessing_pipe_list = [
         pip.Pipeline([prep.StandardScaler()]),
-        pip.Pipeline([prep.StandardScaler(), prep.Pca(7)]),
+        pip.Pipeline([prep.StandardScaler(), prep.Pca(10)]),
+        pip.Pipeline([prep.StandardScaler(), prep.Pca(8)]),
         pip.Pipeline([prep.StandardScaler(), prep.Pca(6)]),
-        pip.Pipeline([prep.StandardScaler(), prep.Pca(5)]),
         pip.Pipeline([prep.StandardScaler(), prep.Pca(4)]),
     ]
 
