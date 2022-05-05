@@ -148,13 +148,14 @@ class MultiNomial(Faucet):
 
 class LogisticRegression(Faucet):
 
-    def __init__(self, norm_coeff=1, max_fun=15000, max_iter=15000):
+    def __init__(self, norm_coeff=1, prior=None, max_fun=15000, max_iter=15000):
         self.norm_coeff = norm_coeff
         self.max_fun = max_fun
         self.max_iter = max_iter
         self.w = None
         self.b = None
         self.binary = None
+        self.prior = prior
 
     def fit(self, x, y):
         if np.unique(y).shape[0] == 2:
@@ -165,6 +166,14 @@ class LogisticRegression(Faucet):
             self.binary = False
 
     def fit_2class(self, x, y):
+        def objective_function_reg(arr):
+            w, b = arr[:-1].reshape(-1, 1), arr[-1]
+            regular = self.norm_coeff / 2 * np.power(np.linalg.norm(w.T, 2), 2)
+            s = w.T @ x.T + b
+            body1 = self.prior / (y == 1).sum() * np.log1p(np.exp(-s[:, y == 1]))
+            body0 = (1 - self.prior) / (y == 0).sum() * np.log1p(np.exp(s[:, y == 0]))
+            return regular + np.sum(body0) + np.sum(body1)
+
         def objective_function(arr):
             w, b = arr[:-1].reshape(-1, 1), arr[-1]
             regular = self.norm_coeff / 2 * np.power(np.linalg.norm(w.T, 2), 2)
@@ -172,10 +181,9 @@ class LogisticRegression(Faucet):
             body = y * np.log1p(np.exp(-s)) + (1 - y) * np.log1p(np.exp(s))
             return regular + np.sum(body) / y.shape[0]
 
-        m, f, d = fmin_l_bfgs_b(objective_function, np.zeros(x.shape[1] + 1),
-                                approx_grad=True,
-                                maxfun=self.max_fun,
-                                maxiter=self.max_iter)
+        m, f, d = fmin_l_bfgs_b(objective_function if self.prior is None else objective_function_reg,
+                                np.zeros(x.shape[1] + 1), approx_grad=True,
+                                maxfun=self.max_fun, maxiter=self.max_iter)
         self.w = m[:-1]
         self.b = m[-1]
 
@@ -220,7 +228,7 @@ class LogisticRegression(Faucet):
 
 class SVM(Faucet):
 
-    def __init__(self, k=10, c=10, ker=None, paramker=None):
+    def __init__(self, k=10, c=10, ker=None, prior=None, paramker=None):
         self.C = c
         self.K = k
         self.W = None
@@ -234,6 +242,7 @@ class SVM(Faucet):
         self.z = None
         self.x = None
         self.alpha = None
+        self.prior = prior
 
     def fit(self, x, y):
 
@@ -244,7 +253,12 @@ class SVM(Faucet):
         DTRc = np.row_stack((DTR, self.K * np.ones(DTR.shape[1])))
 
         x0 = np.zeros(DTR.shape[1])
-        bounds = [(0, self.C) for _ in range(DTR.shape[1])]
+        if self.prior is None:
+            bounds = [(0, self.C) for _ in range(DTR.shape[1])]
+        else:
+            prior_emp = (1.0*(self.z > 0)).sum()/y.size
+            CT, CF = self.C*self.prior/prior_emp, self.C*(1-self.prior)/(1-prior_emp)
+            bounds = [(0, CF) if y[i] == 0 else (0, CT) for i in range(x.shape[0])]
         if self.ker is None:
             G = self.kernel(DTRc, DTRc)
         else:
