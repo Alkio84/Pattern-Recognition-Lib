@@ -307,7 +307,7 @@ class SVM(Faucet):
         if self.ker == "Poly":
             return f"SVM(kernel=Polynomial, C={self.C}, regularization={self.K}, d={self.paramker[0]}, c={self.paramker[1]})"
         if self.ker == "Radial":
-            return f"SVM(kernel=Radial, C={self.C}, regularization={self.K}, gamma={self.paramker[0]})"
+            return f"SVM(kernel=Radial, C={self.C}, regularization={self.K},  gamma={self.paramker[0]})"
         return "Error"
 
 
@@ -346,12 +346,12 @@ class GaussianMixture(Faucet):
     def __str__(self):
         res = ""
         if self.tied:
-            res += f"TiedCovarianceGMM(alpha={self.alpha}"
+            res += f"TiedCovarianceGMM(alpha={self.alpha})"
         elif self.diag:
-            res += f"DiagonalGMM(alpha={self.alpha}"
+            res += f"DiagonalGMM(alpha={self.alpha})"
         else:
-            res += f"GMM(alpha={self.alpha}"
+            res += f"GMM(alpha={self.alpha})"
         res += f", N={2**self.N}"
         if self.psi is not None:
-            res += f", psi={self.psi}"
+            res += f", psi={self.psi})"
         return res

@@ -193,3 +193,16 @@ def get_cov(x: np.ndarray, rt_mean=False):
 
 def get_z_score(x: np.ndarray):
     return (x-np.mean(x))/np.std(x)
+
+#filters -> List of tuples: (Attribute number, left filter, right filter)
+def filter_outliers(x, y, filters):
+    filtered = np.ones((x.shape[0]), dtype=bool)
+    for (index, left, right) in filters:
+        left = left if left is not None else np.NINF
+        right = right if right is not None else np.INF
+        left_filter = x[:, index] > left
+        right_filter = x[:, index] < right
+        col_filters = np.logical_and(left_filter, right_filter)
+        filtered = np.logical_and(filtered, col_filters)
+
+    return x[filtered], y[filtered]

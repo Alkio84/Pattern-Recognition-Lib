@@ -1,0 +1,11 @@
+filters = [(0, None, 5),
+           (1, None, 4),
+           (2, None, 4),
+           (3, None, 3),
+           (4, None, 3),
+           (5, None, 4),
+           (6, None, 3.5),
+           (7, None, 3),
+           (8, None, 4),
+           (9, None, 5),
+           (10, None, 4)]

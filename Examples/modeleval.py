@@ -1,9 +1,8 @@
 import os
 from datetime import datetime
 from typing import List
-
 import numpy as np
-
+from filters import filters
 import PatternLib.Classifier as cl
 import PatternLib.pipeline as pip
 import PatternLib.preproc as prep
@@ -29,14 +28,19 @@ attributes = [
 ]
 
 
-def get_wine_data(path_train="./../Data/Train.txt", path_test="./../Data/Test.txt", labels=False):
+def get_wine_data(path_train="./../Data/Train.txt", path_test="./../Data/Test.txt", labels=False, filters=None):
     """
     Get all pulsar data and divide into labels
     """
     train_data = np.loadtxt(path_train, delimiter=",")
     test_data = np.loadtxt(path_test, delimiter=",")
+    train_data, train_labels, test_data, test_labels = train_data[:, :-1], train_data[:, -1], test_data[:, :-1], test_data[:, -1]
     if labels:
-        return train_data[:, :-1], train_data[:, -1], test_data[:, :-1], test_data[:, -1]
+        if filters is not None:
+            sc = prep.StandardScaler()
+            train_data = sc.fit_transform(train_data)
+            train_data, train_labels = prep.filter_outliers(train_data, train_labels, filters)
+        return train_data, train_labels, test_data, test_labels
     else:
         return train_data, test_data
 

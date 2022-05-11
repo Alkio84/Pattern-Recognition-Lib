@@ -2,16 +2,17 @@ import numpy as np
 from matplotlib import pyplot as plt
 import PatternLib.pipeline as pip
 from typing import List
-import PatternLib.preproc
+import PatternLib.preproc as prep
 from modeleval import get_wine_data, attributes
 
+from filters import filters
 
 def plot_data_exploration(save=False):
-    train, train_labels, test, test_labels = get_wine_data(labels=True)
-    fig, axes = plt.subplots(train.shape[1], 1, figsize=(10, 15))
+    train, train_labels, test, test_labels = get_wine_data(labels=True, filters=filters)
+    fig, axes = plt.subplots(train.shape[1], 1, figsize=(6, 15))
     for i in range(train.shape[1]):
-        axes[i].hist(train[:, i][train_labels == 0], bins=50, density=True, alpha=0.5, color="blue")
-        axes[i].hist(train[:, i][train_labels == 1], bins=50, density=True, alpha=0.5, color="orange")
+        axes[i].hist(train[:, i][train_labels == 0], bins=80, density=True, alpha=0.5)
+        axes[i].hist(train[:, i][train_labels == 1], bins=80, density=True, alpha=0.5)
         axes[i].title.set_text(attributes[i])
     fig.tight_layout()
     if not save:
@@ -54,8 +55,8 @@ def plot_covariance(save=False):
 def plot_outliers(save=False):
     train, train_labels, test, test_labels = get_wine_data(labels=True)
     fig, ax = plt.subplots(train.shape[1], 1, figsize=(10, 15))
-    train = PatternLib.preproc.StandardScaler().fit_transform(train)
-    z = PatternLib.preproc.get_z_score(train)
+    train = prep.StandardScaler().fit_transform(train)
+    z = prep.get_z_score(train)
     for i in range(train.shape[1]):
         ax[i].hist(z[:, i], bins=100)
         ax[i].title.set_text(attributes[i])
@@ -88,7 +89,7 @@ def plot_raw_data():
 if __name__ == "__main__":
     # print_stats(latek=True)
     # print_label_stats()
-    # plot_data_exploration()
+    plot_data_exploration(save=False)
     # plot_covariance()
     # plot_outliers(save=False)
-    plot_raw_data()
+    # plot_raw_data()

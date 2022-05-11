@@ -14,11 +14,11 @@ def score_eval():
     pipe = np.load("result/final2/pipe.npy")
     for pip, score, label in zip(pipe, scores, labels):
         s: str = pip[0]
-        if s.startswith("StandardScaler()->Tied"):
+        if s.startswith("StandardScaler()->"):
             print(pip)
-            mindcf1, _ = minDetectionCost(score, label, 1000, 0.5)
-            mindcf2, _ = minDetectionCost(score, label, 1000, 0.1)
-            mindcf3, _ = minDetectionCost(score, label, 1000, 0.9)
+            mindcf1, _ = minDetectionCost(score, label, -1, 0.5)
+            mindcf2, _ = minDetectionCost(score, label, -1, 0.1)
+            mindcf3, _ = minDetectionCost(score, label, -1, 0.9)
             print(f"& {round(mindcf1, precision)} & {round(mindcf2, precision)} & {round(mindcf3, precision)} \\\\")
 
 
