@@ -35,7 +35,7 @@ def plot_multiple_mindcf_bar_chart(minDCFs, x, legend=None, x_label=None):
     plt.show()
 
 
-def plot_multiple_mindcf_chart(minDCFs, x, legend=None, x_label=None, x_scale=None):
+def plot_multiple_mindcf_chart(minDCFs, x, legend=None, x_label=None, x_scale=None, savetitle=None):
     ax = plt.subplot()
     for i, minDCF in enumerate(minDCFs):
         legend_i = legend[i] if legend is not None and i < len(legend) else None    # Name of the model
@@ -50,5 +50,7 @@ def plot_multiple_mindcf_chart(minDCFs, x, legend=None, x_label=None, x_scale=No
     plt.xlabel(x_label)
     plt.ylabel("DCF")
     plt.show()
+    if savetitle is not None:
+        plt.savefig("images/" + savetitle + ".eps", format='eps')
 
 
