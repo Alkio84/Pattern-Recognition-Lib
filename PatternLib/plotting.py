@@ -35,3 +35,20 @@ def plot_multiple_mindcf_bar_chart(minDCFs, x, legend=None, x_label=None):
     plt.show()
 
 
+def plot_multiple_mindcf_chart(minDCFs, x, legend=None, x_label=None, x_scale=None):
+    ax = plt.subplot()
+    for i, minDCF in enumerate(minDCFs):
+        legend_i = legend[i] if legend is not None and i < len(legend) else None    # Name of the model
+
+        ax.plot(x, minDCF, label=f"{legend_i}")  # minDCF is a vector, minDCFs is a list of vectors
+    if x_label is not None:
+        plt.xlabel(x_label)    # legend_x is the x-axis label
+    if legend is not None:
+        plt.legend()
+    if x_scale is not None:
+        plt.xscale(x_scale)
+    plt.xlabel(x_label)
+    plt.ylabel("DCF")
+    plt.show()
+
+
