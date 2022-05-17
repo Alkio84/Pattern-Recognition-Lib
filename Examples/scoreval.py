@@ -4,23 +4,28 @@ from matplotlib import pyplot as plt
 from PatternLib.probability import minDetectionCost
 from PatternLib.probability import normalizedBayesRisk
 from PatternLib.validation import plotROC
+from PatternLib.plotting import plot_multiple_mindcf_chart
 
 precision = 3
 
 
-def score_eval():
-    labels = np.load("result/final2/labels.npy").astype("int32")
-    scores = np.load("result/final2/scores.npy")
-    pipe = np.load("result/final2/pipe.npy")
-    for pip, score, label in zip(pipe, scores, labels):
+def score_eval(savetitle=None):
+    labels = np.load("result/"+savetitle+"/labels.npy").astype("int32")
+    scores = np.load("result/"+savetitle+"/scores.npy")
+    pipe = np.load("result/"+savetitle+"/pipe.npy")
+    x = np.zeros((3, 51))
+    for i, (pip, score, label) in enumerate(zip(pipe, scores, labels)):
         s: str = pip[0]
-        if s.startswith("StandardScaler()->"):
+        if s.startswith(""):
             print(pip)
             mindcf1, _ = minDetectionCost(score, label, -1, 0.5)
             mindcf2, _ = minDetectionCost(score, label, -1, 0.1)
             mindcf3, _ = minDetectionCost(score, label, -1, 0.9)
             print(f"& {round(mindcf1, precision)} & {round(mindcf2, precision)} & {round(mindcf3, precision)} \\\\")
-
+            if savetitle is not None:
+                x[:, i] = [mindcf1, mindcf2, mindcf3]
+    if savetitle is not None:
+        np.save("tmp/" + savetitle, x)
 
 def joint_score_eval():
     scores = np.load("result/jointResults2/jointscores.npy")
@@ -70,4 +75,13 @@ def plotROCscores():
     plt.show()
 
 if __name__ == "__main__":
-    score_eval()
+    name = "logreg_mindcf"
+    # score_eval(savetitle=name)
+    x = np.load("tmp/"+name+".npy")
+    plot_multiple_mindcf_chart(x,
+                               np.power(10, np.linspace(-3, 1, 51)),
+                               legend=["minDCF$(\widetilde{\pi}=0.5)$", "minDCF$(\widetilde{\pi}=0.1)$", "minDCF$(\widetilde{\pi}=0.9)$"],
+                               x_label="C",
+                               x_scale='log',
+                               savetitle=name)
+    plt.show()
