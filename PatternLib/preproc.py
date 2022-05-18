@@ -205,4 +205,5 @@ def filter_outliers(x, y, filters):
         col_filters = np.logical_and(left_filter, right_filter)
         filtered = np.logical_and(filtered, col_filters)
 
-    return x[filtered], y[filtered]
+    return filtered
+

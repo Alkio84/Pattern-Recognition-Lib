@@ -13,7 +13,7 @@ def score_eval(savetitle=None):
     labels = np.load("result/"+savetitle+"/labels.npy").astype("int32")
     scores = np.load("result/"+savetitle+"/scores.npy")
     pipe = np.load("result/"+savetitle+"/pipe.npy")
-    x = np.zeros((3, 51))
+    x = np.zeros((3, scores.shape[0]))
     for i, (pip, score, label) in enumerate(zip(pipe, scores, labels)):
         s: str = pip[0]
         if s.startswith(""):

@@ -28,7 +28,7 @@ attributes = [
 ]
 
 
-def get_wine_data(path_train="./../Data/Train.txt", path_test="./../Data/Test.txt", labels=False, filters=None):
+def get_wine_data(path_train="./../Data/Train.txt", path_test="./../Data/Test.txt", labels=False):
     """
     Get all pulsar data and divide into labels
     """
@@ -36,10 +36,6 @@ def get_wine_data(path_train="./../Data/Train.txt", path_test="./../Data/Test.tx
     test_data = np.loadtxt(path_test, delimiter=",")
     train_data, train_labels, test_data, test_labels = train_data[:, :-1], train_data[:, -1], test_data[:, :-1], test_data[:, -1]
     if labels:
-        if filters is not None:
-            sc = prep.StandardScaler()
-            train_data = sc.fit_transform(train_data)
-            train_data, train_labels = prep.filter_outliers(train_data, train_labels, filters)
         return train_data, train_labels, test_data, test_labels
     else:
         return train_data, test_data
@@ -52,11 +48,10 @@ def kfold_test():
     train, train_labels, test, test_labels = get_wine_data(labels=True)
     pipe_list: List[pip.Pipeline]
     preprocessing_pipe_list = [
-        pip.Pipeline([prep.StandardScaler()]),
-        pip.Pipeline([prep.StandardScaler(), prep.Pca(10)]),
-        pip.Pipeline([prep.StandardScaler(), prep.Pca(8)]),
-        pip.Pipeline([prep.StandardScaler(), prep.Pca(6)]),
-        pip.Pipeline([prep.StandardScaler(), prep.Pca(4)]),
+        pip.Pipeline([prep.StandardScaler()])
+        # pip.Pipeline([prep.Pca(10)]),
+        # pip.Pipeline([prep.Pca(9)]),
+        # pip.Pipeline([prep.Pca(8)]),
     ]
 
     # Gaussian
@@ -82,8 +77,8 @@ def kfold_test():
             test_model(pipe, cl.SVM, hyper, train, train_labels)
     #   SVM Radial
     for pipe in preprocessing_pipe_list:
-        for hyper in val.grid_search({'c': [1, 10], 'k': [1], 'ker': ['Radial'], 'paramker': [[0.05], [0.1]]}):
-            test_model(pipe, cl.SVM, hyper, train, train_labels)
+        for hyper in val.grid_search({'paramker': [[0.5]], 'c': [np.power(10, x) for x in np.linspace(-1, 2, 51)], 'k': [1], 'ker': ['Radial'] }):
+            test_model(pipe, cl.SVM, hyper, train, train_labels, True)
     #   Gaussian Mixture tied
     for pipe in preprocessing_pipe_list:
         for hyper in val.grid_search({'tied': [True], 'alpha': [0.1], 'N': [0, 1, 2]}):
@@ -98,18 +93,18 @@ def kfold_test():
             test_model(pipe, cl.GaussianMixture, hyper, train, train_labels)
 
 
-def test_model(pipe: pip.Pipeline, mod, hyper: dict, train: np.ndarray, train_labels: np.ndarray):
+def test_model(pipe: pip.Pipeline, mod, hyper: dict, train: np.ndarray, train_labels: np.ndarray, outliers_filter=False):
     """
     KFold wrapper
     """
     model = mod(**hyper if hyper else {})
     pipe.add_step(model)
-    err_rate = k_test(pipe, train, train_labels, 5)
+    err_rate = k_test(pipe, train, train_labels, 5, outliers_filter)
     print(f"{pipe}:{err_rate}")
     pipe.rem_step()
 
 
-def k_test(pipe, train, train_labels, K):
+def k_test(pipe, train, train_labels, K, outliers_filter=False):
     """
     Kfold on model and save scores and labels into files
     """
@@ -117,7 +112,11 @@ def k_test(pipe, train, train_labels, K):
     scores = np.empty((0,), float)
     labels = np.empty((0,), int)
     for x_tr, y_tr, x_ev, y_ev in val.kfold_split(train, train_labels, K):
-        pipe.fit(x_tr, y_tr)
+        mask = np.ones(x_tr.shape[0], dtype=bool)
+        if outliers_filter:
+            x_tr_tmp = prep.StandardScaler().fit_transform(x_tr, y_tr)
+            mask = prep.filter_outliers(x_tr_tmp, y_tr, filters)
+        pipe.fit(x_tr[mask, :], y_tr[mask])
         lab, ratio = pipe.predict(x_ev, True)
         err_rate += val.err_rate(lab, y_ev) / K
         scores = np.append(scores, ratio, axis=0)

@@ -14,6 +14,7 @@ Authors: Paolo Rabino, Matteo Ferrenti
    1. PCA
    2. LDA
    3. Poly Features
+   4. Outlier filters
 4. Probability: Various functions that are used for probability calculations and miscellaneous tasks 
 5. Validation: Functions for computing scores and plots of results 
 6. Pipeline: Data Pipeline and jointer supermodels to build the final model using the costruction blocks defined in the other modules
