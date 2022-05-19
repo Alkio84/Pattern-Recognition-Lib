@@ -5,7 +5,7 @@ from scipy.linalg import eigh
 import numpy as np
 from itertools import combinations_with_replacement
 from itertools import combinations
-
+from scipy.stats import norm
 
 class Pca(Pipe):
 
@@ -206,4 +206,10 @@ def filter_outliers(x, y, filters):
         filtered = np.logical_and(filtered, col_filters)
 
     return filtered
+
+def gaussianization(D):
+    D = D.T
+    D_g = np.array([((-D[i, :]).argsort()).argsort() + 1 for i in range(D.shape[0])])
+    D_g = D_g / (D_g.shape[1] + 2)
+    return norm.ppf(D_g).T
 

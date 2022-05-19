@@ -5,6 +5,7 @@ from PatternLib.probability import minDetectionCost
 from PatternLib.probability import normalizedBayesRisk
 from PatternLib.validation import plotROC
 from PatternLib.plotting import plot_multiple_mindcf_chart
+from PatternLib.plotting import plot_multiple_mindcf_bar_chart
 
 precision = 3
 
