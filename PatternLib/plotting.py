@@ -1,22 +1,28 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from PatternLib.probability import minDetectionCost, getConfusionMatrix, normalizedBayesRisk
+#from PatternLib.checco_measuring_predictions import bayes_errors_from_priors
 
 
-def bayes_errors_from_priors(S, labels, logPriors):
-    dcfs, min_dcfs = [], []
-    for logPrior in logPriors:
-        prior = 1 / (1 + np.exp(-logPrior))
-        dcfs.append((getConfusionMatrix(S > 0, labels), prior, 1, 1))
-        min_dcfs.append(minDetectionCost(S, labels, n_trys=-1, pi1=prior))
-    return dcfs, min_dcfs
+def plot_multiple_bayes_error(scores, labels, logPriors, pipes, legend=None):
+    if scores.shape[1] != labels.shape[1]:
+        raise Exception(f"Score columns are {scores.shape[1]} while labels columns are {labels.shape[1]}")
+    if scores.shape[0] != pipes.shape[0]:
+        raise Exception(f"Score rows are {scores.shape[0]} while pipes rows are {labels.shape[0]}")
 
-
-def plot_multiple_bayes_error(S_list, labels, logPriors, legend=None):
-    for i, S in enumerate(S_list):
+    for i, S in enumerate(scores):
         legend_i = legend[i] if legend is not None and i < len(legend) else None
+        dcfs, min_dcfs = [], []
+        for logPrior in logPriors:
+            prior = 1 / (1 + np.exp(-logPrior))
+            norm_dcf = normalizedBayesRisk(getConfusionMatrix(S > 0, labels), 1, 1, prior)
+            min_dcf, _ = minDetectionCost(S, labels, n_trys=-1, pi1=prior, Cfn=1, Cfp=1)
+            dcfs.append(norm_dcf)
+            min_dcfs.append(min_dcf)
 
-        dcfs, min_dcfs = bayes_errors_from_priors(S, labels, logPriors)
+            if logPrior == 0:
+                print(f"{pipes[i]} as {legend_i}:\n(actDCF: {norm_dcf}) (minDCF: {min_dcf}=")
+
         last_plot = plt.plot(logPriors, dcfs, label=f"DCF {legend_i}")
         # Print the min dcf with a line of the same color as the dcf but with a dashed style
         plt.plot(logPriors, min_dcfs, label=f"minDCF {legend_i}", color=last_plot[0].get_color(), linestyle="dashed")
@@ -24,8 +30,6 @@ def plot_multiple_bayes_error(S_list, labels, logPriors, legend=None):
         plt.legend()
     plt.ylim([0, 1.1])
     plt.xlim([min(logPriors), max(logPriors)])
-    plt.xlabel("log(pt/(1-pt))")
-    plt.ylabel("DCF")
     plt.show()
 
 

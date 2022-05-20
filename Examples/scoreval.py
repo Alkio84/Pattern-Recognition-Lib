@@ -6,6 +6,7 @@ from PatternLib.probability import normalizedBayesRisk
 from PatternLib.validation import plotROC
 from PatternLib.plotting import plot_multiple_mindcf_chart
 from PatternLib.plotting import plot_multiple_mindcf_bar_chart
+from PatternLib.plotting import plot_multiple_bayes_error
 
 precision = 3
 
@@ -75,14 +76,26 @@ def plotROCscores():
     plt.savefig("images/ROC.eps", format='eps')
     plt.show()
 
+
+def confront_bayes_error(dir="", legend=None):
+    scores = np.load(f'{dir}/scores.npy')
+    label = np.load(f'{dir}/labels.npy')
+    pipe = np.load(f'{dir}/pipe.npy')
+
+    plot_multiple_bayes_error(scores, label, np.linspace(-3, 3, 21), pipe, legend=legend)
+
+
 if __name__ == "__main__":
     name = "logreg_mindcf"
     # score_eval(savetitle=name)
-    x = np.load("tmp/"+name+".npy")
+    '''    x = np.load("tmp/"+name+".npy")
     plot_multiple_mindcf_chart(x,
                                np.power(10, np.linspace(-3, 1, 51)),
                                legend=["minDCF$(\widetilde{\pi}=0.5)$", "minDCF$(\widetilde{\pi}=0.1)$", "minDCF$(\widetilde{\pi}=0.9)$"],
                                x_label="C",
                                x_scale='log',
                                savetitle=name)
-    plt.show()
+    plt.show()'''
+    #score_eval('20-05-2022-13-14-30')
+
+    confront_bayes_error("./result/20-05-2022-14-32-29", legend=["SVM Poly", "SVM RBF"])
