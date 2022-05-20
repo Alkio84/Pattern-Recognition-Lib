@@ -1,4 +1,15 @@
 import matplotlib.pyplot as plt
+import numpy as np
+from PatternLib.probability import minDetectionCost, getConfusionMatrix, normalizedBayesRisk
+
+
+def bayes_errors_from_priors(S, labels, logPriors):
+    dcfs, min_dcfs = [], []
+    for logPrior in logPriors:
+        prior = 1 / (1 + np.exp(-logPrior))
+        dcfs.append((getConfusionMatrix(S > 0, labels), prior, 1, 1))
+        min_dcfs.append(minDetectionCost(S, labels, n_trys=-1, pi1=prior))
+    return dcfs, min_dcfs
 
 
 def plot_multiple_bayes_error(S_list, labels, logPriors, legend=None):
@@ -21,10 +32,11 @@ def plot_multiple_bayes_error(S_list, labels, logPriors, legend=None):
 def plot_multiple_mindcf_bar_chart(minDCFs, x, legend=None, x_label=None):
     ax = plt.subplot()
     width = 1 / (len(minDCFs) + 1)  # One bar as padding
+    x = np.array(x)
     for i, minDCF in enumerate(minDCFs):
         legend_i = legend[i] if legend is not None and i < len(legend) else None    # Name of the model
-
-        ax.bar(x+(width*i), minDCF, width=width, label=f"{legend_i}")  # minDCF is a vector, minDCFs is a list of vectors
+        ax.bar(x+(width*i) - width, minDCF, width=width, label=f"{legend_i}")  # minDCF is a vector, minDCFs is a list of vectors
+        plt.xticks(x, np.power(2, x))
     if x_label is not None:
         plt.xlabel(x_label)    # legend_x is the x-axis label
     if legend is not None:
@@ -49,6 +61,26 @@ def plot_multiple_mindcf_chart(minDCFs, x, legend=None, x_label=None, x_scale=No
         plt.xscale(x_scale)
     plt.xlabel(x_label)
     plt.ylabel("DCF")
+    if savetitle is not None:
+        plt.savefig("images/" + savetitle + ".eps", format='eps')
+
+
+def plot_multiple_mindcf_pair_chart(minDCFsA, minDCFsB, x, legend=None, x_label=None, x_scale=None, savetitle=None):
+    for i, minDCF in enumerate(minDCFsA):
+        legend_i = legend[i] if legend is not None and i < len(legend) else None    # Name of the model
+        plt.plot(x, minDCF, label=legend_i)  # minDCF is a vector, minDCFs is a list of vectors
+        plt.plot(x, minDCFsB[i], label=legend_i)
+    plt.grid(True, which="both", linestyle="dotted")
+
+    if x_label is not None:
+        plt.xlabel(x_label)    # legend_x is the x-axis label
+    if legend is not None:
+        plt.legend()
+    if x_scale is not None:
+        plt.xscale(x_scale)
+    plt.xlabel(x_label)
+    plt.ylabel("DCF")
+    plt.savefig("images/" + savetitle + ".eps", format='eps')
     if savetitle is not None:
         plt.savefig("images/" + savetitle + ".eps", format='eps')
 
