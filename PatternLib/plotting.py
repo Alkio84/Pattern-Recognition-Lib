@@ -29,14 +29,14 @@ def plot_multiple_bayes_error(S_list, labels, logPriors, legend=None):
     plt.show()
 
 
-def plot_multiple_mindcf_bar_chart(minDCFs, x, legend=None, x_label=None):
+def plot_multiple_mindcf_bar_chart(minDCFs, x, legend=None, x_label=None, savetitle=None,):
     ax = plt.subplot()
     width = 1 / (len(minDCFs) + 1)  # One bar as padding
-    x = np.array(x)
+    x_tmp = np.arange(len(x))
     for i, minDCF in enumerate(minDCFs):
         legend_i = legend[i] if legend is not None and i < len(legend) else None    # Name of the model
-        ax.bar(x+(width*i) - width, minDCF, width=width, label=f"{legend_i}")  # minDCF is a vector, minDCFs is a list of vectors
-        plt.xticks(x, np.power(2, x))
+        ax.bar(np.array(x)+(width*i)-width, minDCF, width=width, label=f"{legend_i}", align='center')  # minDCF is a vector, minDCFs is a list of vectors
+        plt.xticks(x_tmp, np.array([np.power(2, a) for a in x]))
     if x_label is not None:
         plt.xlabel(x_label)    # legend_x is the x-axis label
     if legend is not None:
@@ -44,6 +44,8 @@ def plot_multiple_mindcf_bar_chart(minDCFs, x, legend=None, x_label=None):
     plt.rcParams['text.usetex'] = True
     plt.xlabel(x_label)
     plt.ylabel("minDCF")
+    if savetitle is not None:
+        plt.savefig("images/" + savetitle + ".eps", format='eps')
     plt.show()
 
 
@@ -63,25 +65,5 @@ def plot_multiple_mindcf_chart(minDCFs, x, legend=None, x_label=None, x_scale=No
     plt.ylabel("DCF")
     if savetitle is not None:
         plt.savefig("images/" + savetitle + ".eps", format='eps')
-
-
-def plot_multiple_mindcf_pair_chart(minDCFsA, minDCFsB, x, legend=None, x_label=None, x_scale=None, savetitle=None):
-    for i, minDCF in enumerate(minDCFsA):
-        legend_i = legend[i] if legend is not None and i < len(legend) else None    # Name of the model
-        plt.plot(x, minDCF, label=legend_i)  # minDCF is a vector, minDCFs is a list of vectors
-        plt.plot(x, minDCFsB[i], label=legend_i)
-    plt.grid(True, which="both", linestyle="dotted")
-
-    if x_label is not None:
-        plt.xlabel(x_label)    # legend_x is the x-axis label
-    if legend is not None:
-        plt.legend()
-    if x_scale is not None:
-        plt.xscale(x_scale)
-    plt.xlabel(x_label)
-    plt.ylabel("DCF")
-    plt.savefig("images/" + savetitle + ".eps", format='eps')
-    if savetitle is not None:
-        plt.savefig("images/" + savetitle + ".eps", format='eps')
-
+    plt.show()
 

@@ -41,14 +41,16 @@ def get_wine_data(path_train="./../Data/Train.txt", path_test="./../Data/Test.tx
         return train_data, test_data
 
 
-def kfold_test():
+def kfold_test(gauss=False):
     """
     Test all models with kfold strategy
     """
     train, train_labels, test, test_labels = get_wine_data(labels=True)
+    if gauss:
+        train = prep.gaussianization(train)
     pipe_list: List[pip.Pipeline]
     preprocessing_pipe_list = [
-        pip.Pipeline([prep.StandardScaler()])
+        pip.Pipeline([prep.StandardScaler()]),
         # pip.Pipeline([prep.Pca(10)]),
         # pip.Pipeline([prep.Pca(9)]),
         # pip.Pipeline([prep.Pca(8)]),

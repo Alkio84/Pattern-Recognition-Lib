@@ -7,9 +7,17 @@ from modeleval import get_wine_data, attributes
 
 from filters import filters
 
-def plot_data_exploration(save=False):
-    train, train_labels, test, test_labels = get_wine_data(labels=True, filters=filters)
+def plot_data_exploration(save=False, filter_outliers=False, gaussianization=False):
+    train, train_labels, test, test_labels = get_wine_data(labels=True)
     fig, axes = plt.subplots(train.shape[1], 1, figsize=(6, 15))
+    if filter_outliers:
+        mask = prep.filter_outliers(prep.StandardScaler().fit_transform(train, train_labels), train_labels, filters=filters)
+        train = train[mask]
+        train_labels = train_labels[mask]
+    if gaussianization:
+        train = prep.gaussianization(train)
+    else:
+        train = prep.StandardScaler().fit_transform(train, train_labels)
     for i in range(train.shape[1]):
         axes[i].hist(train[:, i][train_labels == 0], bins=80, density=True, alpha=0.5)
         axes[i].hist(train[:, i][train_labels == 1], bins=80, density=True, alpha=0.5)
@@ -18,7 +26,7 @@ def plot_data_exploration(save=False):
     if not save:
         fig.show()
     else:
-        fig.savefig('images/distribution.eps', format='eps')
+        fig.savefig('images/distribution.png', format='png')
 
 
 def print_stats(latek=False):
@@ -89,7 +97,7 @@ def plot_raw_data():
 if __name__ == "__main__":
     # print_stats(latek=True)
     # print_label_stats()
-    plot_data_exploration(save=False)
+    plot_data_exploration(save=True)
     # plot_covariance()
     # plot_outliers(save=False)
     # plot_raw_data()
