@@ -15,13 +15,14 @@ def plot_multiple_bayes_error(scores, labels, logPriors, pipes, legend=None):
         dcfs, min_dcfs = [], []
         for logPrior in logPriors:
             prior = 1 / (1 + np.exp(-logPrior))
-            norm_dcf = normalizedBayesRisk(getConfusionMatrix(S > 0, labels), 1, 1, prior)
+            t = -np.log(prior/(1-prior))
+            norm_dcf = normalizedBayesRisk(getConfusionMatrix(S > t, labels), 1, 1, prior)
             min_dcf, _ = minDetectionCost(S, labels, n_trys=-1, pi1=prior, Cfn=1, Cfp=1)
             dcfs.append(norm_dcf)
             min_dcfs.append(min_dcf)
 
             if logPrior == 0:
-                print(f"{pipes[i]} as {legend_i}:\n(actDCF: {norm_dcf}) (minDCF: {min_dcf}=")
+                print(f"{pipes[i]} as {legend_i}:\n(actDCF: {norm_dcf}) (minDCF: {min_dcf})")
 
         last_plot = plt.plot(logPriors, dcfs, label=f"DCF {legend_i}")
         # Print the min dcf with a line of the same color as the dcf but with a dashed style
@@ -30,6 +31,8 @@ def plot_multiple_bayes_error(scores, labels, logPriors, pipes, legend=None):
         plt.legend()
     plt.ylim([0, 1.1])
     plt.xlim([min(logPriors), max(logPriors)])
+    plt.ylabel('DCF')
+    plt.xlabel('prior log odds')
     plt.show()
 
 
