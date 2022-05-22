@@ -8,6 +8,8 @@ import PatternLib.pipeline as pip
 import PatternLib.preproc as prep
 import PatternLib.validation as val
 
+from PatternLib.checco_gmm import GMM_checco
+
 save_logs = True
 all_scores = []
 all_pipes = []
@@ -89,11 +91,10 @@ def kfold_test(gauss=False):
     for pipe in preprocessing_pipe_list:
         for hyper in val.grid_search({'diag': [False], 'alpha': [0.1], 'N': [0, 1, 2]}):
             test_model(pipe, cl.GaussianMixture, hyper, train, train_labels)
-    #   Gaussian Mixture psi
+    #   Checco Mixture psi
     for pipe in preprocessing_pipe_list:
-        for hyper in val.grid_search({'psi': [0.01], 'alpha': [0.1], 'N': [0, 1, 2]}):
-            test_model(pipe, cl.GaussianMixture, hyper, train, train_labels)
-
+        for hyper in val.grid_search({'psi': [0.01], 'alpha': [0.1], 'n_components': [8, 16, 32]}):
+            test_model(pipe, GMM_checco, hyper, train, train_labels)
 
 def test_model(pipe: pip.Pipeline, mod, hyper: dict, train: np.ndarray, train_labels: np.ndarray, outliers_filter=False):
     """
