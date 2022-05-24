@@ -5,9 +5,9 @@ import PatternLib.probability as pr
 from PatternLib.blueprint import *
 import numpy as np
 from PatternLib.probability import GAU_ND_logpdf
-from PatternLib.preproc import get_cov
+from PatternLib.preproc import get_cov, filter_outliers
 from scipy.optimize import fmin_l_bfgs_b
-
+from Examples.filters import filters
 
 class Perceptron(Faucet):
 
@@ -60,12 +60,17 @@ class Perceptron(Faucet):
 
 class GaussianClassifier(Faucet):
 
-    def __init__(self):
+    def __init__(self, outlier_filter=False):
         self.estimates = []
         self.labels = None
         self.Spost = None
+        self.outlier_filter = outlier_filter
 
     def fit(self, x, y):
+        if self.outlier_filter:
+            mask = filter_outliers(x, y, filters)
+            x = x[mask]
+            y = y[mask]
         self.estimates = []
         un, con = np.unique(y, return_counts=True)
         for label, count in zip(un, con):
@@ -75,13 +80,15 @@ class GaussianClassifier(Faucet):
 
     def predict(self, x, return_prob=False):
         scores = []
+        ll = []
         for label, mu, cov, prob in self.estimates:
             scores.append(GAU_ND_logpdf(x.T, mu.reshape(-1, 1), cov) + np.log(prob))
+            ll.append(GAU_ND_logpdf(x.T, mu.reshape(-1, 1), cov))
         SJoint = np.hstack([value.reshape(-1, 1) for value in scores])
         logsum = scipy.special.logsumexp(SJoint, axis=1)
         self.Spost = SJoint - logsum.reshape(1, -1).T
         res = np.argmax(self.Spost, axis=1)
-        return res if not return_prob else res, np.exp(self.Spost[:, 1]) / (np.exp(self.Spost[:, 0]) + 0.00000001)
+        return res if not return_prob else res, ll[1] - ll[0]
 
     def fit_predict(self, x, y):
         self.fit(x, y)
@@ -89,6 +96,7 @@ class GaussianClassifier(Faucet):
 
     def __str__(self):
         return "Gaussian()"
+
 
 
 class NaiveBayes(GaussianClassifier):
@@ -214,7 +222,7 @@ class LogisticRegression(Faucet):
             raise NoFitError()
         if self.binary:
             sc = self.w @ x.T + self.b
-            return sc>0, sc if return_prob else sc > 0
+            return sc > 0, sc if return_prob else sc > 0
         else:
             sc = self.w @ x.T + self.b
             return np.argmax(sc, axis=0), sc if return_prob else np.argmax(sc, axis=0)
@@ -336,7 +344,7 @@ class GaussianMixture(Faucet):
             res.append(pr.logpdf_GMM(x.T, self.gmm_est[label]))
         log_matr = np.vstack(res)
         if return_prob:
-            return np.argmax(log_matr, axis=0), log_matr[0, :] / log_matr[1, :]
+            return np.argmax(log_matr, axis=0), log_matr[1, :] - log_matr[0, :]
         return np.argmax(log_matr, axis=0)
 
     def fit_predict(self, x, y):
@@ -345,12 +353,14 @@ class GaussianMixture(Faucet):
 
     def __str__(self):
         res = ""
-        if self.tied:
-            res += f"TiedCovarianceGMM(alpha={self.alpha})"
+        if self.tied and self.diag:
+            res += f"TiedDiagGMM(alpha={self.alpha}"
+        elif self.tied:
+            res += f"TiedCovarianceGMM(alpha={self.alpha}"
         elif self.diag:
-            res += f"DiagonalGMM(alpha={self.alpha})"
+            res += f"DiagonalGMM(alpha={self.alpha}"
         else:
-            res += f"GMM(alpha={self.alpha})"
+            res += f"FullGMM(alpha={self.alpha}"
         res += f", N={2**self.N}"
         if self.psi is not None:
             res += f", psi={self.psi})"
