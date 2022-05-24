@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-from PatternLib.probability import minDetectionCost
+from PatternLib.probability import minDetectionCost, normalizedBayesRisk, getConfusionMatrix
 from PatternLib.probability import normalizedBayesRisk
 from PatternLib.validation import plotROC
 from PatternLib.plotting import plot_multiple_mindcf_chart
@@ -11,7 +11,7 @@ from PatternLib.plotting import plot_multiple_bayes_error
 precision = 3
 
 
-def score_eval(savetitle=None):
+def score_eval(savetitle=None, alsoActual=False):
     labels = np.load("result/"+savetitle+"/labels.npy").astype("int32")
     scores = np.load("result/"+savetitle+"/scores.npy")
     pipe = np.load("result/"+savetitle+"/pipe.npy")
@@ -24,6 +24,11 @@ def score_eval(savetitle=None):
             mindcf2, _ = minDetectionCost(score, label, -1, 0.1)
             mindcf3, _ = minDetectionCost(score, label, -1, 0.9)
             print(f"& {round(mindcf1, precision)} & {round(mindcf2, precision)} & {round(mindcf3, precision)} \\\\")
+            if alsoActual:
+                priors = [0.5, 0.1, 0.9]
+                ts = [-np.log(p/(1-p)) for p in priors]
+                actDCFs = [normalizedBayesRisk(getConfusionMatrix(score > t, label), 1, 1, priors[i]) for i, t in enumerate(ts)]
+                print(f"& {round(actDCFs[0], precision)} & {round(actDCFs[1], precision)} & {round(actDCFs[2], precision)} \\\\")
             if savetitle is not None:
                 x[:, i] = [mindcf1, mindcf2, mindcf3]
     if savetitle is not None:
