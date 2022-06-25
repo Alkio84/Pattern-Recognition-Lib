@@ -12,7 +12,7 @@ from PatternLib.recalibration import Recalibration
 from PatternLib.plotting import plot_multiple_bayes_error
 
 
-def fusion_train(classifiers, rec, std_scaler):
+def fusion_train(classifiers, rec, std_scaler, save=False, plot=False):
 	train, train_labels, _, _ = get_wine_data(labels=True)
 	scores = np.empty((0,), float)
 	labels = np.empty((0,), float)
@@ -39,10 +39,20 @@ def fusion_train(classifiers, rec, std_scaler):
 	scores = scores.reshape((len(classifiers), -1))
 
 	rec_scores = rec.fit_transform(scores.T, labels)
-	plot_multiple_bayes_error(rec_scores.reshape(1, train_labels.size), labels.reshape(1, labels.size), np.linspace(-4, 4, 101), np.array(["Fusion"]), legend=["Fusion"])
+
+	if save:
+		np.save('./result/fusion_train/scores.npy', scores)
+		np.save('./result/fusion_train/labels.npy', we)
+		np.save('./result/fusion_train/pipe.npy', np.array(["Poly", "RBF", "GMM", "MVG"]))
+		np.save('./result/fusion_train_rec/scores.npy', rec_scores.reshape(1, train_labels.size))
+		np.save('./result/fusion_train_rec/labels.npy', labels.reshape(1, labels.size))
+		np.save('./result/fusion_train_rec/pipe.npy', np.array(["Fusion Rec"]))
+
+	if plot:
+		plot_multiple_bayes_error(rec_scores.reshape(1, train_labels.size), labels.reshape(1, labels.size), np.linspace(-4, 4, 101), np.array(["Fusion"]), legend=["Fusion"])
 
 
-def fusion_test(classifiers, rec, std_scaler):
+def fusion_test(classifiers, rec, std_scaler, save=False, plot=False):
 	train, _, test, test_labels = get_wine_data(labels=True)
 
 	test_scaled = std_scaler.transform(test)
@@ -59,10 +69,19 @@ def fusion_test(classifiers, rec, std_scaler):
 
 	rec_scores = rec.transform(scores.T)
 
+	if save:
+		np.save('./result/fusion_test/scores.npy', scores)
+		np.save('./result/fusion_test/labels.npy', np.array([test_labels, test_labels, test_labels, test_labels]))
+		np.save('./result/fusion_test/pipe.npy', np.array(["Poly", "RBF", "GMM", "MVG"]))
+		np.save('./result/fusion_test_rec/scores.npy', rec_scores.reshape(1, rec_scores.size))
+		np.save('./result/fusion_test_rec/labels.npy', test_labels.reshape(1, test_labels.size))
+		np.save('./result/fusion_test_rec/pipe.npy', np.array(["Fusion Rec"]))
+
 	print("Recalibration:")
 	print(f"Fusion error rate: {val.err_rate(rec_scores > 0, test_labels)}")
 
-	plot_multiple_bayes_error(rec_scores.reshape(1, rec_scores.size), test_labels.reshape(1, test_labels.size), np.linspace(-4, 4, 101), np.array(["Fusion"]), legend=["Fusion"])
+	if plot:
+		plot_multiple_bayes_error(rec_scores.reshape(1, rec_scores.size), test_labels.reshape(1, test_labels.size), np.linspace(-4, 4, 101), np.array(["Fusion Test"]), legend=["Fusion Test"])
 
 
 if __name__ == '__main__':
